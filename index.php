@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="js/visualize.js"></script>
     <title>BBc1 Trasaction Visualise</title>
 </head>
 <body class="containaer">
@@ -23,7 +24,7 @@
                 Hello BBc1 Trasaction Visualiser!
             </h2>
             <div>
-                <form class="">
+                <form>
                     <div class="form-group">
                         <label for="assetgroupid">Asset Group ID</label>
                         <input type="text" class="form-control" id="assetgroupid" placeholder="Asset Group ID">
@@ -36,14 +37,13 @@
                         <label for="tx_id">User ID</label>
                         <input type="text" class="form-control" id="user_id" placeholder="User ID">
                     </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <input type="button" class="btn btn-primary" onclick="post()" value="Submit">
                 </form>
             </div>
         </div>
     </div>
-    <div>
+    <div id="result">
         result
     </div>
 </body>
-<script src="js/visualize.js"></script>
 </html>
