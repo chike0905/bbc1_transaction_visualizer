@@ -26,12 +26,12 @@
     .node rect {
         stroke: #999;
         fill: #fff;
-        stroke-width: 1px; // edgeの先の▲の大きさです
+        stroke-width: 1px;
     }
 
     .edgePath path {
         stroke: #333;
-        stroke-width: 1px; // pathの太さです
+        stroke-width: 1px;
     }
     </style>
     <title>BBc1 Trasaction Visualise</title>

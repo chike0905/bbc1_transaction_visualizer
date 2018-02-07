@@ -1,30 +1,34 @@
 function showtx(){
     $("#result")[0].innerHTML = "<svg><g/></svg>";
+
+    asset_group_id = "994db1b032803b760e40a6094856ad2411f5f134e9e08fb5ebb968e6442098b5";
+    tx_id = "7599c8dc204b94c96dad9880f56e98e4d0efb6d5d487538a8a3216699f2ae1a8";
+    //tx_id = "61c9e3c536c0ff4901ea955e187c00d3c05604d8c8d46112ded50a190a859410";
+    user_id = "2b08d6d7d7cfa1544f12263187b895c1676d9be8282d0f743b89cdfd69fb5a66";
+    /*
 	asset_group_id = $("#assetgroupid")[0].value;
 	tx_id = $("#tx_id")[0].value;
     user_id = $("#user_id")[0].value;
-	post(asset_group_id, tx_id, user_id).done(function(data){
-        draw(data.result);
+    */
+    post(asset_group_id, tx_id, user_id).done(function(result){
+        console.log(result);
+        draw(result);
 	}).fail(function(result){
+        console.log(result);
         $("#result")[0].innerHTML = result.statusText;
     });
 }
 
 function post(asset_group_id, tx_id, user_id){
     var postdata = {
-            "jsonrpc": "2.0",
-            "method": "bbc1_GetTransaction",
-            "params":{
                 "asset_group_id":asset_group_id,
                 "tx_id": tx_id,
                 "user_id": user_id
-            },
-            "id": 5000
-        }
+                };
 
     return $.ajax({
         type : "post",
-        url : 'http://localhost:9000',
+        url : './post.php',
         dataType : "json",
         data: JSON.stringify(postdata),
 	});
@@ -37,19 +41,12 @@ function draw(result){
 						.setDefaultEdgeLabel(function() { return {}; });
 
 	g.setNode(0,  {label: "Transaction", clusterLabelPos:"top", style: "stroke: #333; fill: #7f7;"})
-
 	draw_result(g, 1, result, 0);
 
-	// renderという関数を用意している。これが最終的に図を生成する関数
 	var render = new dagreD3.render();
-
-	// d3.select("svg");により，htmlにあるsvg要素が選択される。svgが複数ある場合は注意。その場合，svgの親要素をselectして，それにsvgをappendすればよい
 	var svg = d3.select("svg");
-
-	// svgの子要素gの部分に，グラフgをレンダー
 	render(d3.select("svg g"), g);
 
-	// svgのサイズがデフォルトのままでは見切れてしまうので大きさを調整
 	svg.attr("height", g.graph().height);
 	svg.attr("width", g.graph().width);
 }
