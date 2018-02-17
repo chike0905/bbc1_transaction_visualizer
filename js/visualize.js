@@ -1,15 +1,10 @@
 function showtx(){
     $("#result")[0].innerHTML = "<svg><g/></svg>";
 
-    asset_group_id = "994db1b032803b760e40a6094856ad2411f5f134e9e08fb5ebb968e6442098b5";
-    tx_id = "7599c8dc204b94c96dad9880f56e98e4d0efb6d5d487538a8a3216699f2ae1a8";
-    //tx_id = "61c9e3c536c0ff4901ea955e187c00d3c05604d8c8d46112ded50a190a859410";
-    user_id = "112b08d6d7d7cfa1544f12263187b895c1676d9be8282d0f743b89cdfd69fb5a66";
-    /*
-	asset_group_id = $("#assetgroupid")[0].value;
+    asset_group_id = $("#assetgroupid")[0].value;
 	tx_id = $("#tx_id")[0].value;
     user_id = $("#user_id")[0].value;
-    */
+
     post(asset_group_id, tx_id, user_id).done(function(result){
         console.log(result);
         draw(result);
@@ -37,18 +32,29 @@ function post(asset_group_id, tx_id, user_id){
 function draw(result){
 	// label(ノード内の文字)をもつグラフを作成
 	var g = new dagreD3.graphlib.Graph({ compound: true })
-						.setGraph({ rankdir: "LR" })
-						.setDefaultEdgeLabel(function() { return {}; });
+						.setGraph({ rankdir: "LR" });
     var counter = 0;
 	var txcounterid = 0
+    var labels = {};
     result.forEach(function(tx){
         g.setNode(counter,  {label: "Transaction", clusterLabelPos:"top", style: "stroke: #333; fill: #7f7;"})
         txcounterid = counter;
-        console.log(txcounterid);
         counter++;
-        counter = draw_result(g, counter, tx, txcounterid);
+        returns = draw_result(g, counter, tx, txcounterid);
+        labels[tx["transaction_id"]] = returns[0];
+        counter = returns[1];
     });
-    //g.setEdge(0, 33);
+
+    result.forEach(function(tx){
+        if(tx["Reference"].length != 0){
+            for(refindex in tx["Reference"]){
+                target = labels[tx["Reference"][refindex]["transaction_id"]]["Event"][tx["Reference"][refindex]["event_index_in_ref"]]["Asset"]["asset_id"];
+                source = labels[tx["transaction_id"]]["Reference"][refindex]["transaction_id"];
+                g.setEdge(target, source,  { label: "", arrowhead: "normal", lineInterpolate: "bundle", lineTension: 100, style: "" });
+            }
+        }
+    });
+
 
 	var render = new dagreD3.render();
 	var svg = d3.select("svg");
@@ -59,22 +65,29 @@ function draw(result){
 }
 
 function draw_result(g, counter, result, parentid){
+    var locallabels = {};
+    var tmpkeystuck = [];
 	for(key in result){
-		type = Object.prototype.toString.call(result[key]);
+        type = Object.prototype.toString.call(result[key]);
 		if(type === "[object Array]" || type === "[object Object]"){
-			g.setNode(counter,  {label: key, clusterLabelPos:"top", style: "stroke: #333; fill: #fff;"})
+            locallabels[key] = {id: counter};
+            g.setNode(counter,  {label: key, clusterLabelPos:"top", style: "stroke: #333; fill: #fff;"})
 			g.setParent(counter, parentid);
 			parent = counter
 			counter++;
-			counter = draw_result(g, counter, result[key], parent)
+            tmpkeystuck.push(key);
+            returns = draw_result(g, counter, result[key], parent);
+            locallabels[tmpkeystuck[tmpkeystuck.length - 1]] = Object.assign(locallabels[tmpkeystuck[tmpkeystuck.length - 1]] , returns[0]);
+            counter = returns[1];
 		} else {
 			if(result[key].length > 40){
-				result[key] = result[key].substr(0, 40)+"..."
+				printvalue = result[key].substr(0, 40)+"..."
 			}
-			g.setNode(counter,  {label: key+"\n"+result[key]});
+            locallabels[key] = counter;
+			g.setNode(counter,  {label: key+"\n"+printvalue});
 			g.setParent(counter, parentid);
 			counter++;
 		}
 	}
-	return counter
+	return [locallabels, counter]
 }

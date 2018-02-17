@@ -20,7 +20,7 @@ function get_all_reftx($asset_group_id, $tx_id, $user_id){
     $result[] = get_tx($asset_group_id, $tx_id, $user_id);
     if(count($result[0]->Reference) != 0){
         foreach($result[0]->Reference as $ref){
-            $result[] = get_tx($ref->asset_group_id, $ref->transaction_id, $user_id);
+            $result = array_merge($result, get_all_reftx($ref->asset_group_id, $ref->transaction_id, $user_id));
         }
     }
     return $result;
